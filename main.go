@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	//"strings"
+	"github.com/ssoyeon/learngo/accounts"
+	"github.com/ssoyeon/learngo/mydict"
 )
 
+/*
+
+
 //파라미터의 타입, return의 타입을 정의해줘야함
-// (a, b int)로 적어줘도 둘다 int형으 인식함
+// (a, b int)로 적어줘도 둘다 int형으로 인식함
 //항상 return 값은 존재해야함
 func multiply(a int, b int) int {
 	return a * b
@@ -93,9 +98,10 @@ func s_canIDrink(age int) bool {
 			return true
 		}
 		return false
-	*/
-}
+*/
+//}
 
+/*
 func main() {
 	//const : 값 변경할 수 없음
 	const name string = "soyeon"
@@ -129,5 +135,96 @@ func main() {
 
 	fmt.Println(canIDrink(16))
 	fmt.Println(s_canIDrink(18))
+
+}
+
+*/
+
+/*
+type person struct {
+	name    string
+	age     int
+	favFood []string
+}
+
+func main() {
+	a := 2
+	b := &a
+	a = 5
+	*b = 20
+	fmt.Println(&a, b)
+	fmt.Println(*b)
+	fmt.Println(a)
+
+	//array : 크기 제한
+	names := [3]string{"k", "s"}
+	names[2] = "y"
+	fmt.Println(names)
+
+	//slice : 길이 제한 없음
+	names_slice := []string{"k", "s"}
+	//slice 자체를 수정하진 않음, 새로운 값이 추가된 slice를 return함
+	names_slice = append(names_slice, "y")
+	fmt.Println(names_slice)
+
+	//map[키]값
+	ksy := map[string]string{"name": "so", "age": "3"}
+
+	for key, value := range ksy {
+		fmt.Println(key, value)
+	}
+
+	favFood := []string{"k", "food"}
+	//아래 두가지 형식을 섞어 쓸 순 없음
+	//soyeon := person{"sso", 3, favFood}
+	soyeon := person{name: "sso", age: 3, favFood: favFood}
+	fmt.Println(soyeon)
+}
+*/
+
+func main() {
+	account := accounts.NewAccount("ksy")
+	account.Deposit(10)
+
+	err := account.Withdraw(20)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//fmt.Println(account.Balance(), account.Owner())
+
+	//struct의 주소 : &{ksy 10} 이 나오는데
+	// String method를 사용해 struct의 출력 형태를 바꿈
+	fmt.Println(account)
+
+	/*
+		dictionary := mydict.Dictionary{}
+		dictionary["hello"] = "hello"
+		fmt.Println(dictionary)
+	*/
+
+	/*
+		dictionary := mydict.Dictionary{"first": "First word"}
+		definition, err := dictionary.Search("second")
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(definition)
+		}
+	*/
+
+	dictionary := mydict.Dictionary{}
+	word := "hello"
+	definition := "greeting"
+	err2 := dictionary.Add(word, definition)
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	hello, _ := dictionary.Search(word)
+	fmt.Println("found", word, "definition:", hello)
+
+	err3 := dictionary.Add(word, definition)
+	if err3 != nil {
+		fmt.Println(err3)
+	}
 
 }
