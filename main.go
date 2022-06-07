@@ -213,18 +213,32 @@ func main() {
 	*/
 
 	dictionary := mydict.Dictionary{}
-	word := "hello"
+	baseword := "hello"
 	definition := "greeting"
-	err2 := dictionary.Add(word, definition)
+	err2 := dictionary.Add(baseword, definition)
 	if err2 != nil {
 		fmt.Println(err2)
 	}
-	hello, _ := dictionary.Search(word)
-	fmt.Println("found", word, "definition:", hello)
+	hello, _ := dictionary.Search(baseword)
+	fmt.Println("found", baseword, "definition:", hello)
 
-	err3 := dictionary.Add(word, definition)
+	err3 := dictionary.Add(baseword, definition)
 	if err3 != nil {
 		fmt.Println(err3)
 	}
 
+	err4 := dictionary.Update(baseword, "Second")
+	if err4 != nil {
+		fmt.Println(err4)
+	}
+	word, _ := dictionary.Search(baseword)
+	fmt.Println(word)
+
+	dictionary.Delete(baseword)
+	word, err5 := dictionary.Search(baseword)
+	if err5 != nil {
+		fmt.Println(err5)
+	} else {
+		fmt.Println(word)
+	}
 }
