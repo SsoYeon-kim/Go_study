@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	//"strings"
-	"github.com/ssoyeon/learngo/accounts"
-	"github.com/ssoyeon/learngo/mydict"
+	"github.com/ssoyeon/learngo/basic/accounts"
+	"github.com/ssoyeon/learngo/basic/mydict"
 )
 
 /*
