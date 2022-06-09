@@ -23,13 +23,20 @@ type extractedJob struct {
 func main() {
 	var jobs []extractedJob
 
+	//[]extractedJob을 받을거니까 channel의 type이여야 함
+	c := make(chan []extractedJob)
+
 	totalPages := getPages()
 
 	// 각 페이지 별로 getPage 함수 호출
 	for i := 0; i < totalPages; i++ {
-		extractedJobs := getPage(i)
-		// 두 개의 배열을 합침 [ c c c]
-		// ...를 안하면 배열 안에 배열이 추가됨 [[] [] []]
+		go getPage(i, c)
+	}
+
+	//위에서 goroutine이 totalPages만큼 생김 (그만큼의 메세지를 채널을 통해 받아야함)
+	for i := 0; i < totalPages; i++ {
+		//메세지를 기다리다가 채널에 전송되면 extractedJob에 저장
+		extractedJobs := <-c
 		jobs = append(jobs, extractedJobs...)
 	}
 
@@ -37,30 +44,9 @@ func main() {
 	fmt.Println("Done, extracted", len(jobs))
 }
 
-func writeJobs(jobs []extractedJob) {
-	file, err := os.Create("jobs.csv")
-	checkErr(err)
-
-	//writer 생성, writer에 데이터 입력, 모든 데이터를 파일에 저장
-	w := csv.NewWriter(file)
-	defer w.Flush()
-
-	headers := []string{"Title", "Location", "Summary"}
-	//w.Write()를 보면 error를 리턴함 따라서 에러 체크
-	//w.Write()에는 []string이 입력돼야함
-	wErr := w.Write(headers)
-	checkErr(wErr)
-
-	//반복문이 끝나면 defer가 실행되고 데이터가 파일에 입력됨
-	for _, job := range jobs {
-		jobSlice := []string{job.title, job.location, job.summary}
-		jwErr := w.Write(jobSlice)
-		checkErr(jwErr)
-	}
-}
-
 //각 페이지에 있는 job 반환
-func getPage(page int) []extractedJob {
+//goroutine을 생성해 일자리를 전달받고, main함수의 채널로 전송함
+func getPage(page int, mainC chan<- []extractedJob) {
 	var jobs []extractedJob
 
 	c := make(chan extractedJob)
@@ -87,13 +73,15 @@ func getPage(page int) []extractedJob {
 	})
 
 	for i := 0; i < searchCards.Length(); i++ {
+		//메세지가 전달되기를 기다렸다가, 받으면 jobs 배열에 추가
 		job := <-c
 		jobs = append(jobs, job)
 	}
 
-	return jobs
+	mainC <- jobs
 }
 
+//채널을 통해 메세지 전송
 func extractJob(card *goquery.Selection, c chan<- extractedJob) {
 	title := cleanString(card.Find(".jobTitle>a").Text())
 	location := cleanString(card.Find(".companyLocation").Text())
@@ -129,6 +117,28 @@ func getPages() int {
 	})
 
 	return pages
+}
+
+func writeJobs(jobs []extractedJob) {
+	file, err := os.Create("jobs.csv")
+	checkErr(err)
+
+	//writer 생성, writer에 데이터 입력, 모든 데이터를 파일에 저장
+	w := csv.NewWriter(file)
+	defer w.Flush()
+
+	headers := []string{"Title", "Location", "Summary"}
+	//w.Write()를 보면 error를 리턴함 따라서 에러 체크
+	//w.Write()에는 []string이 입력돼야함
+	wErr := w.Write(headers)
+	checkErr(wErr)
+
+	//반복문이 끝나면 defer가 실행되고 데이터가 파일에 입력됨
+	for _, job := range jobs {
+		jobSlice := []string{job.title, job.location, job.summary}
+		jwErr := w.Write(jobSlice)
+		checkErr(jwErr)
+	}
 }
 
 func checkErr(err error) {
