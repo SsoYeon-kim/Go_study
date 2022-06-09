@@ -89,6 +89,7 @@ func getPage(page int) []extractedJob {
 
 	return jobs
 }
+
 func extractJob(card *goquery.Selection) extractedJob {
 	title := cleanString(card.Find(".jobTitle>a").Text())
 	location := cleanString(card.Find(".companyLocation").Text())
